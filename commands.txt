@@ -15,13 +15,33 @@ curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.de
 
 sudo EXTERNAL_URL="http://devops1435.com" apt-get install gitlab-ee
 
+Docker volumes : https://docs.docker.com/storage/volumes/#start-a-service-with-volumes
 
 
 Docker:
 Gitlab: git pull gitlab/gitlab-ce
 
-docker run -it -p 80:80 -p 43:43 -p 20:20 --detach gitlab/gitlab-ce
+docker run --name my-gitlab -it -p 80:80 -p 43:43 -p 20:20 --detach gitlab/gitlab-ce
 
+create docker volume:
+docker volume create gitlab-vol
+
+docker run -d --name gitlab -it -p 80:80 -p 43:43 -p 20:20 --mount source=gitlab-vol,target=/home/git/repositories gitlab/gitlab-ce
+docker run -d --name my-gitlab -it -p 80:80 -p 43:43 -p 22:22 gitlab/gitlab-ce
+
+Docker volumes : https://www.nschoe.com/articles/2017-01-28-Docker-Taming-the-Beast-Part-4.html
+
+Docker network : https://stackoverflow.com/questions/30545023/how-to-communicate-between-docker-containers-via-hostname
+
+Gitlab-jenkins : https://medium.com/@teeks99/continuous-integration-with-jenkins-and-gitlab-fa770c62e88a
+Used username - password instead of ssh key
+
+Jenkins-java api : https://github.com/jenkinsci/java-client-api
+
+Gitlab api java : https://github.com/timols/java-gitlab-api
+
+Gitlab Java API : 
+https://github.com/gmessner/gitlab4j-api
 
 Links:
 Gitlab with Java API : https://stackoverflow.com/questions/44346552/how-to-push-to-gitlab-with-java-api-with-ssh
@@ -46,3 +66,7 @@ curl -G https://api.github.com/search/repositories       ^
     --data-urlencode "order=desc"                          ^
     -H "Accept: application/vnd.github.preview"            ^
     | jq ".items[0,1,2] | {name, description, language, watchers_count, html_url}"
+	
+	
+Gitlab API : 
+https://docs.gitlab.com/ee/api/projects.html

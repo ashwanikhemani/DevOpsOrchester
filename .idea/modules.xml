@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/devops-process.iml" filepath="$PROJECT_DIR$/.idea/modules/devops-process.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/devops-process_main.iml" filepath="$PROJECT_DIR$/.idea/modules/devops-process_main.iml" group="devops-process" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/devops-process_test.iml" filepath="$PROJECT_DIR$/.idea/modules/devops-process_test.iml" group="devops-process" />
+    </modules>
+  </component>
+</project>
