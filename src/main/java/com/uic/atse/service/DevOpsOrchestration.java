@@ -15,7 +15,7 @@ public class DevOpsOrchestration {
     private GithubService githubService;
 
     // Dev-Ops Orchestration process
-    private static DevOpsOrchestration orchestration;
+    private static DevOpsOrchestration orchestration = null;
 
     // Source code destination
     private String codeDestination;

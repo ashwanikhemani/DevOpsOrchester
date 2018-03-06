@@ -36,7 +36,7 @@ public class GithubService {
     private int projectSizeLowerLimit;
 
     // github client
-    private GitHubClient gitHubClient;
+    private static GitHubClient gitHubClient;
 
     // github repository service
     private RepositoryService repositoryService;
