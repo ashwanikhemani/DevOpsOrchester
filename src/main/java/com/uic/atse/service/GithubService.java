@@ -5,7 +5,11 @@ import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.SearchRepository;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -76,8 +80,8 @@ public class GithubService {
             searchResults = repositoryService.searchRepositories(searchQuery);
 
             repoMap = searchResults.parallelStream()
-                    .filter(repo -> !repo.isPrivate() && repo.getSize() > projectLimit)
-                    .limit(projectSizeLowerLimit)
+                    .filter(repo -> !repo.isPrivate() && repo.getSize() > projectSizeLowerLimit)
+                    .limit(projectLimit)
                     .map(repo -> {
 
                 try{
@@ -90,7 +94,7 @@ public class GithubService {
                     return null;
                 }
 
-            }).collect(Collectors.toMap((repo) -> repo.getName(), (repo) -> repo.getCloneUrl()));
+            }).collect(Collectors.toMap((repo) -> repo.getCloneUrl(), (repo) -> repo.getName()));
 
         } catch (IOException e) {
             System.out.println("Exception occurred while getting repositories from Github");
@@ -98,6 +102,24 @@ public class GithubService {
         }
 
         return repoMap;
+    }
+
+    protected void cloneRepositoryFromGithub(String cloneUrl, String destination){
+        cloneRepositoryFromGithub(cloneUrl, destination, true);
+    }
+
+    protected void cloneRepositoryFromGithub(String cloneUrl, String destination, boolean cloneAllBranches){
+        try {
+            Git git = Git.cloneRepository()
+                    .setURI(cloneUrl)
+                    .setDirectory(new File(destination))
+                    .setCloneAllBranches(cloneAllBranches)
+                    .call();
+
+        } catch (GitAPIException e){
+            System.out.println("Exception occurred while cloning repository " + cloneUrl);
+            e.printStackTrace();
+        }
     }
 
 
