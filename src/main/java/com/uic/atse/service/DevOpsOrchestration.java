@@ -1,10 +1,9 @@
 package com.uic.atse.service;
 
+import org.gitlab.api.models.GitlabProject;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -58,17 +57,28 @@ public class DevOpsOrchestration {
         // Clone repositories to file system
         Map<String, String> codeLocationMap =  new HashMap<>();
         repoDetails.keySet().parallelStream().forEach(repoUrl -> {
-                    githubService.cloneRepositoryFromGithub(repoUrl, codeDestination + "/" + repoDetails.get(repoUrl));
-                    codeLocationMap.put(repoDetails.get(repoUrl), codeDestination + "/" + repoDetails.get(repoUrl));
-                });
 
-        System.out.println(codeLocationMap);
+            githubService.cloneRepositoryFromGithub(repoUrl, codeDestination + "/" + repoDetails.get(repoUrl));
+            codeLocationMap.put(repoDetails.get(repoUrl), codeDestination + "/" + repoDetails.get(repoUrl));
+        });
 
-        /*repoDetails.keySet().parallelStream().forEach(projectName -> {
+        // Create gitlab project and jenkins job
+        codeLocationMap.entrySet().parallelStream().forEach(entry -> {
 
-        });*/
+            String projectName = entry.getKey() + "3";
+            // gitlab project
+            GitlabProject project = gitlabService.createProject(projectName);
 
-        // Create gitlab project from
+            // jenkins job
+            jenkinsService.createJob(projectName, project.getHttpUrl());
+
+            // add hook from gitlab project to jenkins job
+            gitlabService.addHookToProject(project, jenkinsService.getJobUrl(projectName));
+
+            // push code to gitlab
+            gitlabService.pushCode(entry.getValue(), project.getHttpUrl());
+
+        });
     }
 
 }

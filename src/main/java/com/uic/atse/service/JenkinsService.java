@@ -55,7 +55,7 @@ public class JenkinsService {
         jenkinsConfigFileLocation = "D:\\jenkins\\config.xml";
 
         try {
-            new JenkinsServer(new URI(jenkinsHost),
+            jenkinsServer = new JenkinsServer(new URI(jenkinsHost),
                     jenkinsUserName, jenkinsUserPassword);
 
         } catch (URISyntaxException e) {
@@ -85,7 +85,8 @@ public class JenkinsService {
      */
     protected boolean createJob(String jobName, String sourceUrl){
         try {
-            getUpdatedConfig(jenkinsConfigFileLocation, jobName, sourceUrl);
+            String config = getUpdatedConfig(jenkinsConfigFileLocation, jobName, sourceUrl);
+            jenkinsServer.createJob(jobName,config, true);
             return true;
 
         } catch (ParserConfigurationException | TransformerException | SAXException | IOException e) {
@@ -128,6 +129,11 @@ public class JenkinsService {
         String content = writer.toString();
 
         return content;
+    }
+
+    protected String getJobUrl(String jobName){
+            return jenkinsJobUrl + jobName;
+
     }
 
 

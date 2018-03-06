@@ -1,13 +1,13 @@
 package com.uic.atse.service;
 
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.SearchRepository;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -110,13 +110,17 @@ public class GithubService {
 
     protected void cloneRepositoryFromGithub(String cloneUrl, String destination, boolean cloneAllBranches){
         try {
-            Git git = Git.cloneRepository()
+            File directory = new File(destination);
+            if(directory.exists())
+                FileUtils.deleteDirectory(directory);
+
+            Git.cloneRepository()
                     .setURI(cloneUrl)
-                    .setDirectory(new File(destination))
+                    .setDirectory(directory)
                     .setCloneAllBranches(cloneAllBranches)
                     .call();
 
-        } catch (GitAPIException e){
+        } catch (GitAPIException | IOException e){
             System.out.println("Exception occurred while cloning repository " + cloneUrl);
             e.printStackTrace();
         }
