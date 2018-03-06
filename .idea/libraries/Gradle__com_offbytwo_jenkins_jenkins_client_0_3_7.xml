@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.offbytwo.jenkins:jenkins-client:0.3.7">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.offbytwo.jenkins/jenkins-client/0.3.7/bf75e235bc2fb68b412716a2b1866790ed64cac1/jenkins-client-0.3.7.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.offbytwo.jenkins/jenkins-client/0.3.7/12f931182942c4662c79399370f4c2b93c7ad944/jenkins-client-0.3.7-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,5 +1,6 @@
 package com.uic.atse.service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,6 +15,12 @@ public class DevOpsOrchestration {
     // github service
     private GithubService githubService;
 
+    // Gitlab service
+    private GitlabService gitlabService;
+
+    // Jenkins service
+    private JenkinsService jenkinsService;
+
     // Dev-Ops Orchestration process
     private static DevOpsOrchestration orchestration = null;
 
@@ -22,6 +29,8 @@ public class DevOpsOrchestration {
 
     private DevOpsOrchestration(){
         githubService = GithubService.getInstance();
+        gitlabService = GitlabService.getInstance();
+        jenkinsService = JenkinsService.getInstance();
         codeDestination = "D://gitrepo/";
     }
 
@@ -47,12 +56,19 @@ public class DevOpsOrchestration {
         Map<String, String> repoDetails = githubService.getRepoDetailsFromGithub();
 
         // Clone repositories to file system
-        Set<String> codeLocationSet = repoDetails.keySet().parallelStream().map(repoUrl -> {
-            githubService.cloneRepositoryFromGithub(repoUrl, codeDestination+"/" + repoDetails.get(repoUrl));
-            return codeDestination+"/" + repoDetails.get(repoUrl);
-        }).collect(Collectors.toSet());
+        Map<String, String> codeLocationMap =  new HashMap<>();
+        repoDetails.keySet().parallelStream().forEach(repoUrl -> {
+                    githubService.cloneRepositoryFromGithub(repoUrl, codeDestination + "/" + repoDetails.get(repoUrl));
+                    codeLocationMap.put(repoDetails.get(repoUrl), codeDestination + "/" + repoDetails.get(repoUrl));
+                });
 
-        System.out.println(codeLocationSet);
+        System.out.println(codeLocationMap);
+
+        /*repoDetails.keySet().parallelStream().forEach(projectName -> {
+
+        });*/
+
+        // Create gitlab project from
     }
 
 }
