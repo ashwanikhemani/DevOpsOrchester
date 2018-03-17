@@ -12,7 +12,6 @@ import org.eclipse.egit.github.core.SearchRepository;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.FilterFailedException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.json.JSONArray;
