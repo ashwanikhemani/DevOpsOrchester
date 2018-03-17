@@ -56,14 +56,15 @@ public class DevOpsOrchestration {
         System.out.println("Starting Dev-ops pipeline");
 
         // Get repository details from Github according to search query
-        Map<String, String> repoDetails = githubService.getRepoDetailsFromGithub();
+        Map<String, String> repoDetails = githubService.getRepoDetailsFromGithubUsingTopic();
 
         // Clone repositories to file system
         Map<String, String> codeLocationMap =  new HashMap<>();
         repoDetails.keySet().parallelStream().forEach(repoUrl -> {
 
-            githubService.cloneRepositoryFromGithub(repoUrl, codeDestination + "/" + repoDetails.get(repoUrl));
-            codeLocationMap.put(repoDetails.get(repoUrl), codeDestination + "/" + repoDetails.get(repoUrl));
+            if(githubService.cloneRepositoryFromGithub(repoUrl,
+                    codeDestination + "/" + repoDetails.get(repoUrl)))
+                codeLocationMap.put(repoDetails.get(repoUrl), codeDestination + "/" + repoDetails.get(repoUrl));
         });
 
         // Create gitlab project and jenkins job
