@@ -87,8 +87,12 @@ public class JenkinsService {
      */
     protected boolean createJob(String jobName, String sourceUrl){
         try {
-            if(null != jenkinsServer.getJob(jobName)){
-                jenkinsServer.deleteJob(jobName);
+            Job job = jenkinsServer.getJob(jobName);
+            if(null != job){
+                /*jenkinsServer.deleteJob(jobName,true);*/
+                System.out.println("Jenkins job already exists for " + job.getName());
+                job.build(true); // triggering build
+                return false; // returning false to avoid further process for the project in pipeline
             }
 
             String config = getUpdatedConfig(jenkinsConfigFileLocation, jobName, sourceUrl);
@@ -142,5 +146,20 @@ public class JenkinsService {
 
     }
 
+    /*public static void main(String[] args){
+        JenkinsService jenkinsService = JenkinsService.getInstance();
+        try {
+            jenkinsService.jenkinsServer.getJobs().keySet().stream().forEach(job -> {
+                try {
+                    jenkinsService.jenkinsServer.deleteJob(job,true);
+                    System.out.println("Deleting "+ job);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }*/
 
 }

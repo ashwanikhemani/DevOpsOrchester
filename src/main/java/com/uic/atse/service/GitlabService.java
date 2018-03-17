@@ -88,10 +88,17 @@ public class GitlabService {
                     .collect(Collectors.toMap(proj -> proj.getName(), proj -> proj.getId()));
 
             if(existingProjectNameIds.keySet().contains(projectName)){
-                gitlabAPI.deleteProject(existingProjectNameIds.get(projectName));
-            }
 
-            project = gitlabAPI.createProject(projectName);
+                System.out.println("Project already exists in gitlab for " + projectName);
+                project = gitlabAPI.getProject(existingProjectNameIds.get(projectName));
+
+                /*gitlabAPI.deleteProject(existingProjectNameIds.get(projectName));
+                System.out.println("Deleting gitlab project");
+                Thread.sleep(10000); // adding a pause to make sure project is deleted before re-creation*/
+            }
+            else {
+                project = gitlabAPI.createProject(projectName);
+            }
             project.setHttpUrl(DevOpsUtils.replaceHostInUrl(project.getHttpUrl(),
                     gitlabHost.split("://")[1]));
 
@@ -122,5 +129,16 @@ public class GitlabService {
         return true;
     }
 
+    /*public static void main(String[] args) throws IOException {
+        GitlabService gitlabService = GitlabService.getInstance();
+        gitlabService.gitlabAPI.getProjects().stream().forEach(proj -> {
+            try {
+                gitlabService.gitlabAPI.deleteProject(proj.getId());
+                System.out.println("Deleting "+proj.getId());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }*/
 
 }
