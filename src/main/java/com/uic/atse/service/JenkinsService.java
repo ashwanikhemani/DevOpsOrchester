@@ -1,6 +1,8 @@
 package com.uic.atse.service;
 
 import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.model.Job;
+import com.uic.atse.utility.DevopsProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -34,7 +36,7 @@ public class JenkinsService {
     // Jenkins host
     private String jenkinsHost;
 
-    // Jenkins job url with internal IP -------TODO move logic to GitlabSErvice
+    // Jenkins job url with hostname/internal IP(in case of Docker)
     private String jenkinsJobUrl;
 
     // Jenkins config file location
@@ -47,12 +49,13 @@ public class JenkinsService {
     private static JenkinsService jenkinsService = null;
 
     private JenkinsService(){
+        DevopsProperties props = DevopsProperties.getInstance();
 
-        jenkinsHost = "http://localhost:8080/";
-        jenkinsUserName = "root";
-        jenkinsUserPassword = "Qwerty123#";
-        jenkinsJobUrl = "http://10.0.75.1:8080/project/";
-        jenkinsConfigFileLocation = "D:\\jenkins\\config.xml";
+        jenkinsHost = props.getJenkinsHost();
+        jenkinsUserName = props.getJenkinsUserName();
+        jenkinsUserPassword = props.getJenkinsUserPassword();
+        jenkinsJobUrl = props.getJenkinsJobUrl();
+        jenkinsConfigFileLocation = props.getJenkinsConfigFileLocation();
 
         try {
             jenkinsServer = new JenkinsServer(new URI(jenkinsHost),
@@ -72,7 +75,6 @@ public class JenkinsService {
 
         if(null == jenkinsService){
             jenkinsService = new JenkinsService();
-            return jenkinsService;
         }
         return jenkinsService;
     }
@@ -85,6 +87,10 @@ public class JenkinsService {
      */
     protected boolean createJob(String jobName, String sourceUrl){
         try {
+            if(null != jenkinsServer.getJob(jobName)){
+                jenkinsServer.deleteJob(jobName);
+            }
+
             String config = getUpdatedConfig(jenkinsConfigFileLocation, jobName, sourceUrl);
             jenkinsServer.createJob(jobName,config, true);
             return true;

@@ -1,6 +1,7 @@
 package com.uic.atse.service;
 
 import com.uic.atse.utility.DevOpsUtils;
+import com.uic.atse.utility.DevopsProperties;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -10,6 +11,9 @@ import org.gitlab.api.models.GitlabProject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Gitlab service to communicate with Gitlab server
@@ -34,10 +38,12 @@ public class GitlabService {
     private static GitlabService gitlabService = null;
 
     private GitlabService(){
-        gitlabHost = "http://localhost";
-        gitlabUserName = "root";
-        gitlabUserPassword = "Qwerty123#";
-        gitlabAccessToken = "hKA4pufmsYz1nGyvAo-H";
+        DevopsProperties props = DevopsProperties.getInstance();
+
+        gitlabHost = props.getGitlabHost();
+        gitlabUserName = props.getGitlabUserName();
+        gitlabUserPassword = props.getGitlabUserPassword();
+        gitlabAccessToken = props.getGitlabAccessToken();
         gitlabAPI = GitlabAPI.connect(gitlabHost,gitlabAccessToken);
 
     }
@@ -50,7 +56,6 @@ public class GitlabService {
 
         if(null == gitlabService){
             gitlabService = new GitlabService();
-            return gitlabService;
         }
         return gitlabService;
 
@@ -79,6 +84,13 @@ public class GitlabService {
         GitlabProject project = null;
         try {
 
+            Map<String, Integer> existingProjectNameIds = gitlabAPI.getProjects().stream()
+                    .collect(Collectors.toMap(proj -> proj.getName(), proj -> proj.getId()));
+
+            if(existingProjectNameIds.keySet().contains(projectName)){
+                gitlabAPI.deleteProject(existingProjectNameIds.get(projectName));
+            }
+
             project = gitlabAPI.createProject(projectName);
             project.setHttpUrl(DevOpsUtils.replaceHostInUrl(project.getHttpUrl(),
                     gitlabHost.split("://")[1]));
@@ -91,7 +103,7 @@ public class GitlabService {
         return project;
     }
 
-    protected void pushCode(String sourceDirectoryPath, String remoteUrl){
+    protected boolean pushCode(String sourceDirectoryPath, String remoteUrl){
 
         Git git = null;
         try {
@@ -105,8 +117,9 @@ public class GitlabService {
         } catch (IOException | GitAPIException e) {
             System.out.println("Exception occurred while pushing code to Gitlab from directory at " + sourceDirectoryPath );
             e.printStackTrace();
+            return false;
         }
-
+        return true;
     }
 
 

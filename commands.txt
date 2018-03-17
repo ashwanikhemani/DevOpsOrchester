@@ -70,3 +70,14 @@ curl -G https://api.github.com/search/repositories       ^
 	
 Gitlab API : 
 https://docs.gitlab.com/ee/api/projects.html
+
+Understand:
+https://scitools.com/support/python-api/
+
+
+und create -db C:/abc/new.udb -languages Java
+und add -db C:/abc/new.udb D:\git\adarsh_hegde_ashwani_khemani_srinath_kv_hw1
+und metrics  C:/abc/new4.udb
+und metrics -arch myArch C:/abc/new4.udb
+und metrics -html arch1 arch2 C:/abc C:/abc/new4.udb
+und metrics -html C:/abc C:/abc/new4.udb 

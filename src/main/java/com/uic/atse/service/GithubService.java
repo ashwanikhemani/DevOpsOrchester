@@ -1,6 +1,7 @@
 package com.uic.atse.service;
 
 
+import com.uic.atse.utility.DevopsProperties;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.SearchRepository;
@@ -32,6 +33,9 @@ public class GithubService {
     // programming language of the projects
     private String projectLanguage;
 
+    // type of Project
+    private String type;
+
     // lower size limit of each project
     private int projectSizeLowerLimit;
 
@@ -44,11 +48,14 @@ public class GithubService {
     private static GithubService githubService = null;
 
     private GithubService(){
-        githubUserName = "ateamhasnoname03";
-        githubUserPassword = "qwerty123#";
-        projectLimit = 20;
-        projectLanguage = "Java";
-        projectSizeLowerLimit = 100;
+        DevopsProperties props = DevopsProperties.getInstance();
+
+        githubUserName = props.getGithubUserName();
+        githubUserPassword = props.getGithubUserPassword();
+        projectLimit = props.getProjectLimit();
+        projectLanguage = props.getProjectLanguage();
+        projectSizeLowerLimit = props.getProjectSizeLowerLimit();
+        type = props.getProjectType();
         gitHubClient = new GitHubClient();
         gitHubClient.setCredentials(githubUserName, githubUserPassword);
         repositoryService = new RepositoryService(gitHubClient);
@@ -62,12 +69,15 @@ public class GithubService {
 
         if (null == githubService) {
             githubService = new GithubService();
-            return githubService;
         }
         return githubService;
 
     }
 
+    /**
+     * Get repository details
+     * @return
+     */
     protected Map<String, String> getRepoDetailsFromGithub(){
         Map<String,String> repoMap = null;
 
@@ -75,6 +85,7 @@ public class GithubService {
 
             Map<String, String> searchQuery = new HashMap<>();
             searchQuery.put("keyword", projectLanguage);
+            //searchQuery.put("topic", type);
             List<SearchRepository> searchResults = null;
 
             searchResults = repositoryService.searchRepositories(searchQuery);
@@ -108,6 +119,12 @@ public class GithubService {
         cloneRepositoryFromGithub(cloneUrl, destination, true);
     }
 
+    /**
+     * Clone repository from github
+     * @param cloneUrl
+     * @param destination
+     * @param cloneAllBranches
+     */
     protected void cloneRepositoryFromGithub(String cloneUrl, String destination, boolean cloneAllBranches){
         try {
             File directory = new File(destination);

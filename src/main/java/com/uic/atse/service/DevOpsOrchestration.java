@@ -1,5 +1,6 @@
 package com.uic.atse.service;
 
+import com.uic.atse.utility.DevopsProperties;
 import org.gitlab.api.models.GitlabProject;
 
 import java.util.HashMap;
@@ -27,10 +28,12 @@ public class DevOpsOrchestration {
     private String codeDestination;
 
     private DevOpsOrchestration(){
+        DevopsProperties props = DevopsProperties.getInstance();
+
         githubService = GithubService.getInstance();
         gitlabService = GitlabService.getInstance();
         jenkinsService = JenkinsService.getInstance();
-        codeDestination = "D://gitrepo/";
+        codeDestination = props.getCodeDestination();
     }
 
     /**
@@ -41,7 +44,6 @@ public class DevOpsOrchestration {
 
         if(null == orchestration){
             orchestration = new DevOpsOrchestration();
-            return orchestration;
         }
         return orchestration;
     }
@@ -50,6 +52,8 @@ public class DevOpsOrchestration {
      * performs the dev-ops orchestration
      */
     public void execute(){
+
+        System.out.println("Starting Dev-ops pipeline");
 
         // Get repository details from Github according to search query
         Map<String, String> repoDetails = githubService.getRepoDetailsFromGithub();
@@ -65,20 +69,35 @@ public class DevOpsOrchestration {
         // Create gitlab project and jenkins job
         codeLocationMap.entrySet().parallelStream().forEach(entry -> {
 
-            String projectName = entry.getKey() + "3";
+            String projectName = entry.getKey();
             // gitlab project
             GitlabProject project = gitlabService.createProject(projectName);
+            if(null == project){
+                System.out.println("Gitlab project creation failed for project " + projectName);
+                return;
+            }
 
             // jenkins job
-            jenkinsService.createJob(projectName, project.getHttpUrl());
+            if(!jenkinsService.createJob(projectName, project.getHttpUrl())){
+                System.out.println("Jenkins job creation failed for project " + projectName);
+                return;
+            }
 
             // add hook from gitlab project to jenkins job
-            gitlabService.addHookToProject(project, jenkinsService.getJobUrl(projectName));
+            if(!gitlabService.addHookToProject(project, jenkinsService.getJobUrl(projectName))){
+                System.out.println("Hook creation failed for project " + projectName);
+                return;
+            }
 
             // push code to gitlab
-            gitlabService.pushCode(entry.getValue(), project.getHttpUrl());
+            if(!gitlabService.pushCode(entry.getValue(), project.getHttpUrl())){
+                System.out.println("Code push to Gitlab failed for project " + projectName);
+                return;
+            }
 
         });
+
+        System.out.println("Done!");
     }
 
 }
