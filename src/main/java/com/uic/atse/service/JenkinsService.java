@@ -48,6 +48,9 @@ public class JenkinsService {
     // Jenkins service
     private static JenkinsService jenkinsService = null;
 
+    // Jenkins home location
+    private String jenkinsHome;
+
     private JenkinsService(){
         DevopsProperties props = DevopsProperties.getInstance();
 
@@ -56,6 +59,7 @@ public class JenkinsService {
         jenkinsUserPassword = props.getJenkinsUserPassword();
         jenkinsJobUrl = props.getJenkinsJobUrl();
         jenkinsConfigFileLocation = props.getJenkinsConfigFileLocation();
+        jenkinsHome = props.getJenkinsHome();
 
         try {
             jenkinsServer = new JenkinsServer(new URI(jenkinsHost),
@@ -95,7 +99,7 @@ public class JenkinsService {
                 return false; // returning false to avoid further process for the project in pipeline
             }
 
-            String config = getUpdatedConfig(jenkinsConfigFileLocation, jobName, sourceUrl);
+            String config = getUpdatedConfig(jenkinsConfigFileLocation, jobName, sourceUrl, jenkinsHome);
             jenkinsServer.createJob(jobName,config, true);
             return true;
 
@@ -112,23 +116,33 @@ public class JenkinsService {
      * @param templateLocation
      * @param jobName
      * @param gitUrl
+     * @param jenkinsHome
      * @return
      * @throws ParserConfigurationException
      * @throws TransformerException
      * @throws SAXException
      * @throws IOException
      */
-    private String getUpdatedConfig(String templateLocation, String jobName, String gitUrl)
+    private String getUpdatedConfig(String templateLocation, String jobName,
+                                    String gitUrl, String jenkinsHome)
     throws ParserConfigurationException, TransformerException, SAXException, IOException {
 
         DocumentBuilderFactory dcbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dcBuilder = dcbFactory.newDocumentBuilder();
         File file = new File(templateLocation);
+        File credentialsFile = new File(jenkinsHome + "\\credentials.xml");
+
         Document document = dcBuilder.parse(new FileInputStream(file));
+        Document credentialsDocument = dcBuilder.parse(new FileInputStream(credentialsFile));
 
         Node url = document.getElementsByTagName("url").item(0);
-        url.setTextContent(gitUrl);
 
+        Node gitlabCredentialsName = credentialsDocument.getElementsByTagName("id").item(0);
+        String name = gitlabCredentialsName.getTextContent();
+
+        Node gitlabCredentialsNameConfig = document.getElementsByTagName("credentialsId").item(0);
+        url.setTextContent(gitUrl);
+        gitlabCredentialsNameConfig.setTextContent(name);
 
         DOMSource domSource = new DOMSource(document);
         StringWriter writer = new StringWriter();
@@ -148,7 +162,7 @@ public class JenkinsService {
 
     /*public static void main(String[] args){
         JenkinsService jenkinsService = JenkinsService.getInstance();
-        try {
+        *//*try {
             jenkinsService.jenkinsServer.getJobs().keySet().stream().forEach(job -> {
                 try {
                     jenkinsService.jenkinsServer.deleteJob(job,true);
@@ -157,6 +171,20 @@ public class JenkinsService {
                     e.printStackTrace();
                 }
             });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*//*
+
+        try {
+            System.out.println(jenkinsService.getUpdatedConfig(jenkinsService.jenkinsConfigFileLocation, "newJob",
+                    "http://adarsh",jenkinsService.jenkinsHome));
+
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -42,6 +42,8 @@ public class DevopsProperties extends Properties {
 
     private String jenkinsConfigFileLocation;
 
+    private String jenkinsHome;
+
     /**
      * Load all properties
      * @param inStream
@@ -68,6 +70,7 @@ public class DevopsProperties extends Properties {
         this.jenkinsUserPassword = (String) get("jenkinsUserPassword");
         this.jenkinsConfigFileLocation = (String) get("jenkinsConfigFileLocation");
         this.jenkinsJobUrl = (String) get("jenkinsJobUrl");
+        this.jenkinsHome = (String) get("jenkinsHome");
 
     }
 
@@ -157,6 +160,8 @@ public class DevopsProperties extends Properties {
     public String getJenkinsConfigFileLocation() {
         return jenkinsConfigFileLocation;
     }
+
+    public String getJenkinsHome() { return jenkinsHome; }
 
     /*public static void main(String[] args){
 
