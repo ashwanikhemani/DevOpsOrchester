@@ -162,7 +162,7 @@ public class JenkinsService {
 
     /*public static void main(String[] args){
         JenkinsService jenkinsService = JenkinsService.getInstance();
-        *//*try {
+        try {
             jenkinsService.jenkinsServer.getJobs().keySet().stream().forEach(job -> {
                 try {
                     jenkinsService.jenkinsServer.deleteJob(job,true);
@@ -173,9 +173,9 @@ public class JenkinsService {
             });
         } catch (IOException e) {
             e.printStackTrace();
-        }*//*
+        }
 
-        try {
+        *//*try {
             System.out.println(jenkinsService.getUpdatedConfig(jenkinsService.jenkinsConfigFileLocation, "newJob",
                     "http://adarsh",jenkinsService.jenkinsHome));
 
@@ -187,7 +187,7 @@ public class JenkinsService {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*//*
     }*/
 
 }

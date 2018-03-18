@@ -71,6 +71,12 @@ public class DevOpsOrchestration {
         codeLocationMap.entrySet().parallelStream().forEach(entry -> {
 
             String projectName = entry.getKey();
+
+            //generate git log for patch
+            if(!githubService.createLog(entry.getValue(),projectName)){
+                System.out.println("Git Log Patch not generated for project " + projectName);
+            }
+
             // gitlab project
             GitlabProject project = gitlabService.createProject(projectName);
             if(null == project){

@@ -14,13 +14,13 @@ import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -204,8 +204,42 @@ public class GithubService {
         return true;
     }
 
+    /**
+     * Print the changes in the last two commits in a diff format,
+     * stored as patch_filename.txt in cloned project directory
+     * @param sourceDirectoryPath
+     * @param projectName
+     * @return
+     */
+    protected  boolean createLog(String sourceDirectoryPath, String projectName) {
+        try {
 
+            Git git =Git.open(new File(sourceDirectoryPath));
 
+            RevCommit headCommit = getHeadCommit(git.getRepository());
+            RevCommit diffWith = headCommit.getParent(0);
+            FileOutputStream stdout = new FileOutputStream(sourceDirectoryPath+"//Patch "+projectName+".txt");
+
+            try (DiffFormatter diffFormatter = new DiffFormatter(stdout)) {
+                diffFormatter.setRepository(git.getRepository());
+                for (DiffEntry entry : diffFormatter.scan(diffWith, headCommit)) {
+                    diffFormatter.format(diffFormatter.toFileHeader(entry));
+                }
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    private static RevCommit getHeadCommit(org.eclipse.jgit.lib.Repository repository) throws Exception {
+        try (Git git = new Git(repository)) {
+            Iterable<RevCommit> history = git.log().setMaxCount(2).call();
+            return history.iterator().next();
+        }
+    }
 
 
 
